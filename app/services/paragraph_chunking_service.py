@@ -12,11 +12,21 @@ from app.services.chunking_service import (
 
 
 class ParagraphChunkingService:
-    def __init__(self, chunk_size: int = 500):
+    def __init__(
+        self,
+        chunk_size: int = 500,
+        chunk_overlap: int = 0,
+    ):
         if chunk_size <= 0:
             raise ValueError("chunk_size must be positive")
 
+        if not 0 <= chunk_overlap < chunk_size:
+            raise ValueError(
+                "chunk_overlap must be between 0 and chunk_size"
+            )
+
         self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
 
     def split(
         self,
@@ -78,7 +88,7 @@ class ParagraphChunkingService:
 
                     fallback = ChunkingService(
                         chunk_size=self.chunk_size,
-                        chunk_overlap=0,
+                        chunk_overlap=self.chunk_overlap,
                     )
 
                     for chunk in fallback.split(temp_document):

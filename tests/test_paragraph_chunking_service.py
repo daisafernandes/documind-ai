@@ -146,3 +146,57 @@ def test_invalid_chunk_size():
         assert False, "Expected ValueError"
     except ValueError:
         pass
+
+
+def test_large_paragraph_uses_overlap():
+    document = ExtractedDocument(
+        document_id="doc-1",
+        total_pages=1,
+        pages=[
+            DocumentPage(
+                page_number=1,
+                text="A" * 900,
+            )
+        ],
+    )
+
+    service = ParagraphChunkingService(
+        chunk_size=500,
+        chunk_overlap=100,
+    )
+
+    chunks = service.split(document)
+
+    assert len(chunks) == 2
+    assert len(chunks[0].text) == 500
+    assert len(chunks[1].text) == 500
+
+    assert chunks[0].text[-100:] == chunks[1].text[:100]
+
+    assert [chunk.chunk_index for chunk in chunks] == [0, 1]
+    assert all(chunk.page_start == 1 for chunk in chunks)
+    assert all(chunk.page_end == 1 for chunk in chunks)
+
+
+def test_small_paragraphs_do_not_use_overlap():
+    document = ExtractedDocument(
+        document_id="doc-2",
+        total_pages=1,
+        pages=[
+            DocumentPage(
+                page_number=1,
+                text=("A" * 300) + "\n\n" + ("B" * 300),
+            )
+        ],
+    )
+
+    service = ParagraphChunkingService(
+        chunk_size=500,
+        chunk_overlap=100,
+    )
+
+    chunks = service.split(document)
+
+    assert len(chunks) == 2
+    assert chunks[0].text == "A" * 300
+    assert chunks[1].text == "B" * 300
