@@ -1,5 +1,6 @@
 [dependency-groups]
 app = [
+    "chromadb==1.5.9",
     "fastapi==0.162.0",
     "pydantic==2.14.1",
     "pymupdf==2.0",
@@ -12,4 +13,5 @@ dev = [
 ]
 experiments = [
     "sentence-transformers==6.2.0",
+    "chromadb==1.5.9",
 ]
