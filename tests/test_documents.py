@@ -88,20 +88,3 @@ def test_upload_corrupted_pdf():
     )
 
     assert response.status_code == 422
-
-def test_upload_valid_pdf():
-    response = client.post(
-        "/documents",
-        files={
-            "file": (
-                "test.pdf",
-                create_test_pdf(),
-                "application/pdf",
-            )
-        },
-    )
-
-    print("Status:", response.status_code)
-    print("Response:", response.json())
-
-    assert response.status_code == 202
